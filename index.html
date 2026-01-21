@@ -359,26 +359,24 @@
     </div>
 </div>    
 <script type="module">
-// IMPORTY FIREBASE
+    // IMPORTY FIREBASE
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    // DODAJEMY TE LINIE:
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // TWOJA KONFIGURACJA
+    // TWOJA KONFIGURACJA (Skopiuj ją z konsoli Firebase)
     const firebaseConfig = {
-        apiKey: "AIzaSyCpqn8ZaNRbUpu7Q-gEhOfboEBisrEtWdE",
-        authDomain: "technova-store-d7433.firebaseapp.com",
-        projectId: "technova-store-d7433",
-        storageBucket: "technova-store-d7433.firebasestorage.app",
-        messagingSenderId: "839917141980",
-        appId: "1:839917141980:web:e432515b2bf7ef859b5919",
-        measurementId: "G-H3VLEDMFSQ"
-    };
+  apiKey: "AIzaSyCpqn8ZaNRbUpu7Q-gEhOfboEBisrEtWdE",
+  authDomain: "technova-store-d7433.firebaseapp.com",
+  projectId: "technova-store-d7433",
+  storageBucket: "technova-store-d7433.firebasestorage.app",
+  messagingSenderId: "839917141980",
+  appId: "1:839917141980:web:e432515b2bf7ef859b5919",
+  measurementId: "G-H3VLEDMFSQ"
+};
 
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getFirestore(firebaseApp);
-    const auth = getAuth(firebaseApp); // <--- INICJACJA AUTH
+
     const VAT = 1.23;
     const STATUSES = ["Nowe", "W realizacji", "Zrealizowane", "Wysłane", "Odebrane", "Anulowane"];
     
@@ -429,36 +427,6 @@ async function loadData() {
 
 // Wywołaj ładowanie danych na samym dole skryptu (zamiast samego render())
 loadData();
-// TEN KOD ODPOWIADA ZA POKAZANIE STRONY PO ZALOGOWANIU
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // Firebase potwierdza: użytkownik jest zalogowany
-        // Szukamy dodatkowych danych (np. roli) w Twojej tablicy users
-        const u = users.find(x => x.login === user.email);
-        currUser = u || { login: user.email, role: 'client' }; 
-
-        // Przełączanie widoków
-        document.getElementById('auth-section').classList.add('hidden');
-        document.getElementById('app-view').classList.remove('hidden');
-        document.getElementById('nav-logout-btn').classList.remove('hidden');
-
-        // Sprawdzanie uprawnień admina
-        if(currUser.role === 'employee') {
-            document.getElementById('admin-panel').classList.remove('hidden');
-            document.getElementById('nav-cart-btn').classList.add('hidden');
-        } else {
-            document.getElementById('admin-panel').classList.add('hidden');
-            document.getElementById('nav-cart-btn').classList.remove('hidden');
-        }
-        render();
-    } else {
-        // Użytkownik wylogowany - pokazujemy formularz logowania
-        currUser = null;
-        document.getElementById('auth-section').classList.remove('hidden');
-        document.getElementById('app-view').classList.add('hidden');
-        document.getElementById('nav-logout-btn').classList.add('hidden');
-    }
-});
         // --- Logika Opinii ---
         function renderReviews(productId) {
             const prodReviews = reviews.filter(r => r.productId === productId);
@@ -798,19 +766,18 @@ onAuthStateChanged(auth, (user) => {
         function changeImg(el, src) { document.getElementById('detail-img-main').src = src; document.querySelectorAll('.thumb-img').forEach(img => img.classList.remove('active')); el.classList.add('active'); }
         function applyPromo() { const code = document.getElementById('cart-promo-input').value.toUpperCase(); const found = promos.find(p => p.code === code); if(found) { activePromo = found; updateCartUI(); alert("Zniżka!"); } else alert("Zły kod."); }
 
-document.getElementById('auth-form').onsubmit = async (e) => {
+        document.getElementById('auth-form').onsubmit = (e) => {
             e.preventDefault();
-            const email = document.getElementById('login').value;
-            const pass = document.getElementById('pass').value;
-
-            try {
-                // Próba zalogowania w Firebase Auth
-                await signInWithEmailAndPassword(auth, email, pass);
-                // Nie musisz tu ustawiać currUser, zrobi to onAuthStateChanged poniżej
-            } catch (error) {
-                console.error("Błąd logowania:", error);
-                alert("Błąd logowania! Sprawdź email i hasło.");
-            }
+            const u = users.find(x => x.login === document.getElementById('login').value && x.pass === document.getElementById('pass').value);
+            if(u) {
+                currUser = u;
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('app-view').classList.remove('hidden');
+                document.getElementById('nav-logout-btn').classList.remove('hidden');
+                if(u.role === 'employee') document.getElementById('admin-panel').classList.remove('hidden');
+                else document.getElementById('nav-cart-btn').classList.remove('hidden');
+                render();
+            } else alert("Błąd logowania!");
         };
 
         document.getElementById('user-form').onsubmit = (e) => {
@@ -866,16 +833,8 @@ function deleteProd(id) { if(confirm("Usunąć produkt?")) { prods=prods.filter(
         function editUser(id) { const u = users.find(x => x.id === id); document.getElementById('u-id').value = u.id; document.getElementById('u-login').value = u.login; document.getElementById('u-pass').value = u.pass; document.getElementById('u-role').value = u.role; }
         function editProd(id) { const p = prods.find(x => x.id === id); document.getElementById('p-id').value = p.id; document.getElementById('p-name').value = p.name; document.getElementById('p-spec').value = p.spec; document.getElementById('p-price-netto').value = p.priceNetto; document.getElementById('p-discount').value = p.discount; document.getElementById('p-stock').value = p.stock; document.getElementById('p-delivery').value = p.deliveryPrice || 0; document.getElementById('p-img').value = Array.isArray(p.img) ? p.img.join(', ') : p.img; calcBrutto(); window.scrollTo(0,0); }
         function closeProduct() { document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('product-detail').classList.add('hidden'); }
-// ZAMIEŃ NA TO:
-async function logout() { 
-    try {
-        await signOut(auth); // To wylogowuje Cię z systemu Firebase
-        location.reload(); 
-    } catch (error) {
-        console.error("Błąd podczas wylogowywania:", error);
-    }
-}
-    render();
+        function logout() { location.reload(); }
+        render();
     window.logout = logout;
 window.showProduct = showProduct;
 window.addToCart = addToCart;
