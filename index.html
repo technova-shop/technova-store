@@ -657,27 +657,37 @@ loadData();
     }
     // --- KONIEC: KOD ŚLEDZENIA ---
             
-            // Kontynuacja składania zamówienia (Twój stary kod z checkout)
-            const itemsSnapshot = cart.map(i => ({ name: i.name, price: i.price }));
-            cart.forEach(item => { const p = prods.find(x => x.id === item.id); if (p && p.stock > 0) p.stock--; });
-            
-            const now = new Date().toLocaleString();
-            orders.push({
-                id: Date.now(),
-                user: currUser.login,
-                total: document.getElementById('cart-total').innerText,
-                items: itemsSnapshot, 
-                date: now,
-                status: "Nowe",
-                history: [{ date: now, status: "Opłacono BLIK - Złożenie zamówienia" }]
-            });
-            
-            cart = []; activePromo = null;
-            bootstrap.Modal.getInstance(document.getElementById('cartModal'))?.hide();
-            alert("Płatność zaakceptowana! Zamówienie zostało złożone.");
-            save(); closeProduct();
-        }
+// 3. Logika zapisu zamówienia w Firebase/Bazie
+    const itemsSnapshot = cart.map(i => ({ name: i.name, price: i.price }));
+    cart.forEach(item => { 
+        const p = prods.find(x => x.id === item.id); 
+        if (p && p.stock > 0) p.stock--; 
+    });
+    
+    const now = new Date().toLocaleString();
+    orders.push({
+        id: Date.now(),
+        user: currUser ? currUser.login : "Gość", // Zabezpieczenie przed brakiem zalogowania
+        total: totalValue.toFixed(2),
+        items: itemsSnapshot, 
+        date: now,
+        status: "Nowe",
+        history: [{ date: now, status: "Opłacono BLIK - Zakup zarejestrowany" }]
+    });
 
+    // 4. Czyszczenie koszyka i odświeżenie strony
+    cart = []; 
+    activePromo = null;
+    
+    // Zamknięcie modala koszyka Bootstrap
+    const cartModalEl = document.getElementById('cartModal');
+    const modalInstance = bootstrap.Modal.getInstance(cartModalEl);
+    if(modalInstance) modalInstance.hide();
+    
+    alert("Płatność zaakceptowana! Twoje zamówienie jest w realizacji.");
+    save(); 
+    render();
+}
         function addToCart(id) {
             const p = prods.find(x => x.id === id);
             const inCart = cart.filter(c => c.id === id).length;
