@@ -2,15 +2,6 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-H3VLEDMFSQ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-H3VLEDMFSQ');
-</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechNova - Professional Store</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -346,7 +337,19 @@
         </div>
     </div>
 
-    <script type="module">
+<div id="blik-modal" class="hidden fixed inset-0 w-full h-full flex items-center justify-center" style="background: rgba(0,0,0,0.8); z-index: 9999; position: fixed; top: 0; left: 0;">
+    <div class="glass-panel p-5 text-center" style="max-width: 400px; width: 90%;">
+        <h3 class="mb-4"><i class="bi bi-p-circle text-primary"></i> Płatność BLIK</h3>
+        <p>Twój kod BLIK:</p>
+        <div id="blik-code-display" class="display-4 fw-bold mb-4 text-primary" style="letter-spacing: 10px;">000 000</div>
+        <p class="small text-secondary">Wprowadź kod w aplikacji bankowej i potwierdź transakcję.</p>
+        <div class="progress mb-3" style="height: 5px; background: rgba(255,255,255,0.1);">
+            <div id="blik-progress" class="progress-bar bg-primary" style="width: 100%;"></div>
+        </div>
+        <button onclick="confirmBlik()" class="btn btn-primary w-100">Potwierdziłem w aplikacji</button>
+    </div>
+</div>    
+<script type="module">
     // IMPORTY FIREBASE
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -601,6 +604,33 @@ loadData();
 
         function checkout() {
             if (cart.length === 0) return alert("Koszyk jest pusty!");
+            
+            // 1. Generowanie kodu BLIK
+            const randomCode = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('blik-code-display').innerText = randomCode.toString().replace(/(\d{3})(\d{3})/, '$1 $2');
+            
+            // 2. Pokazanie okna BLIK
+            document.getElementById('blik-modal').classList.remove('hidden');
+            
+            // 3. Animacja paska (ok. 2 minuty)
+            let width = 100;
+            if(window.blikInterval) clearInterval(window.blikInterval);
+            window.blikInterval = setInterval(() => {
+                width -= 1;
+                document.getElementById('blik-progress').style.width = width + '%';
+                if (width <= 0) {
+                    clearInterval(window.blikInterval);
+                    document.getElementById('blik-modal').classList.add('hidden');
+                    alert("Kod BLIK wygasł!");
+                }
+            }, 1200);
+        }
+
+        function confirmBlik() {
+            clearInterval(window.blikInterval);
+            document.getElementById('blik-modal').classList.add('hidden');
+            
+            // Kontynuacja składania zamówienia (Twój stary kod z checkout)
             const itemsSnapshot = cart.map(i => ({ name: i.name, price: i.price }));
             cart.forEach(item => { const p = prods.find(x => x.id === item.id); if (p && p.stock > 0) p.stock--; });
             
@@ -612,12 +642,12 @@ loadData();
                 items: itemsSnapshot, 
                 date: now,
                 status: "Nowe",
-                history: [{ date: now, status: "Złożenie zamówienia (Nowe)" }]
+                history: [{ date: now, status: "Opłacono BLIK - Złożenie zamówienia" }]
             });
             
             cart = []; activePromo = null;
             bootstrap.Modal.getInstance(document.getElementById('cartModal'))?.hide();
-            alert("Zamówienie przyjęte!");
+            alert("Płatność zaakceptowana! Zamówienie zostało złożone.");
             save(); closeProduct();
         }
 
@@ -792,6 +822,7 @@ window.showOrderDetails = showOrderDetails;
 window.deleteOrder = deleteOrder; // DODAJ TĘ LINIĘ
 window.applyPromo = applyPromo;
 window.checkout = checkout;
+window.confirmBlik = confirmBlik; // DODAJ TĘ LINIĘ
 window.closeProduct = closeProduct;
 window.changeImg = changeImg;</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
