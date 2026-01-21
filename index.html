@@ -429,6 +429,36 @@ async function loadData() {
 
 // Wywołaj ładowanie danych na samym dole skryptu (zamiast samego render())
 loadData();
+// TEN KOD ODPOWIADA ZA POKAZANIE STRONY PO ZALOGOWANIU
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // Firebase potwierdza: użytkownik jest zalogowany
+        // Szukamy dodatkowych danych (np. roli) w Twojej tablicy users
+        const u = users.find(x => x.login === user.email);
+        currUser = u || { login: user.email, role: 'client' }; 
+
+        // Przełączanie widoków
+        document.getElementById('auth-section').classList.add('hidden');
+        document.getElementById('app-view').classList.remove('hidden');
+        document.getElementById('nav-logout-btn').classList.remove('hidden');
+
+        // Sprawdzanie uprawnień admina
+        if(currUser.role === 'employee') {
+            document.getElementById('admin-panel').classList.remove('hidden');
+            document.getElementById('nav-cart-btn').classList.add('hidden');
+        } else {
+            document.getElementById('admin-panel').classList.add('hidden');
+            document.getElementById('nav-cart-btn').classList.remove('hidden');
+        }
+        render();
+    } else {
+        // Użytkownik wylogowany - pokazujemy formularz logowania
+        currUser = null;
+        document.getElementById('auth-section').classList.remove('hidden');
+        document.getElementById('app-view').classList.add('hidden');
+        document.getElementById('nav-logout-btn').classList.add('hidden');
+    }
+});
         // --- Logika Opinii ---
         function renderReviews(productId) {
             const prodReviews = reviews.filter(r => r.productId === productId);
