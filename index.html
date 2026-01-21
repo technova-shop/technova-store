@@ -337,33 +337,75 @@
         </div>
     </div>
 
-    <script>
-        const VAT = 1.23;
-        const STATUSES = ["Nowe", "W realizacji", "Zrealizowane", "Wysłane", "Odebrane", "Anulowane"];
-        
-        let users = JSON.parse(localStorage.getItem('tn_u')) || [{id: 1, login: 'admin', pass: 'admin', role: 'employee'}, {id: 2, login: 'klient', pass: '123', role: 'client'}];
-        let prods = JSON.parse(localStorage.getItem('tn_p')) || [];
-        let promos = JSON.parse(localStorage.getItem('tn_promo')) || [];
-        let orders = JSON.parse(localStorage.getItem('tn_orders')) || [];
-        let reviews = JSON.parse(localStorage.getItem('tn_reviews')) || []; // NOWOŚĆ: Opinie
-        let cart = []; 
-        let currUser = null; 
-        let activePromo = null;
+    <script type="module">
+    // IMPORTY FIREBASE
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        function calcBrutto() {
-            const n = parseFloat(document.getElementById('p-price-netto').value) || 0;
-            document.getElementById('p-price-brutto').value = (n * VAT).toFixed(2);
+    // TWOJA KONFIGURACJA (Skopiuj ją z konsoli Firebase)
+    const firebaseConfig = {
+  apiKey: "AIzaSyCpqn8ZaNRbUpu7Q-gEhOfboEBisrEtWdE",
+  authDomain: "technova-store-d7433.firebaseapp.com",
+  projectId: "technova-store-d7433",
+  storageBucket: "technova-store-d7433.firebasestorage.app",
+  messagingSenderId: "839917141980",
+  appId: "1:839917141980:web:e432515b2bf7ef859b5919",
+  measurementId: "G-H3VLEDMFSQ"
+};
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getFirestore(firebaseApp);
+
+    const VAT = 1.23;
+    const STATUSES = ["Nowe", "W realizacji", "Zrealizowane", "Wysłane", "Odebrane", "Anulowane"];
+    
+    // Zmienne będą teraz synchronizowane z bazą, nie tylko z localStorage
+    let users = [];
+    let prods = [];
+    let promos = [];
+    let orders = [];
+    let reviews = [];
+    let cart = []; 
+    let currUser = null; 
+    let activePromo = null;
+
+async function save() {
+    // Zapisujemy całe kolekcje do Firestore
+    // W profesjonalnym systemie zapisywałbyś każdy produkt osobno, 
+    // ale tutaj dla uproszczenia (zgodnie z Twoją strukturą) zapiszemy to jako dokumenty.
+    await setDoc(doc(db, "store", "products"), { data: prods });
+    await setDoc(doc(db, "store", "users"), { data: users });
+    await setDoc(doc(db, "store", "orders"), { data: orders });
+    await setDoc(doc(db, "store", "reviews"), { data: reviews });
+    await setDoc(doc(db, "store", "promos"), { data: promos });
+    render();
+}
+
+// Funkcja pobierająca dane z chmury przy starcie strony
+async function loadData() {
+    const docNames = ["products", "users", "orders", "reviews", "promos"];
+    
+    for (const name of docNames) {
+        const snap = await getDoc(doc(db, "store", name));
+        if (snap.exists()) {
+            if (name === "products") prods = snap.data().data;
+            if (name === "users") users = snap.data().data;
+            if (name === "orders") orders = snap.data().data;
+            if (name === "reviews") reviews = snap.data().data;
+            if (name === "promos") promos = snap.data().data;
         }
+    }
+    
+    // Jeśli baza jest pusta, dodaj konto admina
+    if (users.length === 0) {
+        users = [{id: 1, login: 'admin', pass: 'admin', role: 'employee'}];
+    }
+    
+    render();
+}
 
-        function save() {
-            localStorage.setItem('tn_p', JSON.stringify(prods));
-            localStorage.setItem('tn_u', JSON.stringify(users));
-            localStorage.setItem('tn_promo', JSON.stringify(promos));
-            localStorage.setItem('tn_orders', JSON.stringify(orders));
-            localStorage.setItem('tn_reviews', JSON.stringify(reviews)); // NOWOŚĆ
-            render();
-        }
-
+// Wywołaj ładowanie danych na samym dole skryptu (zamiast samego render())
+loadData();
         // --- Logika Opinii ---
         function renderReviews(productId) {
             const prodReviews = reviews.filter(r => r.productId === productId);
