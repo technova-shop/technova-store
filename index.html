@@ -866,8 +866,16 @@ function deleteProd(id) { if(confirm("Usunąć produkt?")) { prods=prods.filter(
         function editUser(id) { const u = users.find(x => x.id === id); document.getElementById('u-id').value = u.id; document.getElementById('u-login').value = u.login; document.getElementById('u-pass').value = u.pass; document.getElementById('u-role').value = u.role; }
         function editProd(id) { const p = prods.find(x => x.id === id); document.getElementById('p-id').value = p.id; document.getElementById('p-name').value = p.name; document.getElementById('p-spec').value = p.spec; document.getElementById('p-price-netto').value = p.priceNetto; document.getElementById('p-discount').value = p.discount; document.getElementById('p-stock').value = p.stock; document.getElementById('p-delivery').value = p.deliveryPrice || 0; document.getElementById('p-img').value = Array.isArray(p.img) ? p.img.join(', ') : p.img; calcBrutto(); window.scrollTo(0,0); }
         function closeProduct() { document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('product-detail').classList.add('hidden'); }
-        function logout() { location.reload(); }
-        render();
+// ZAMIEŃ NA TO:
+async function logout() { 
+    try {
+        await signOut(auth); // To wylogowuje Cię z systemu Firebase
+        location.reload(); 
+    } catch (error) {
+        console.error("Błąd podczas wylogowywania:", error);
+    }
+}
+    render();
     window.logout = logout;
 window.showProduct = showProduct;
 window.addToCart = addToCart;
