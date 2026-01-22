@@ -88,13 +88,30 @@
         .star-rating-input input:checked ~ label, .star-rating-input label:hover, .star-rating-input label:hover ~ label { color: #f59e0b; }
 
         select.glass-input option { background: #0f172a; color: white; }
+/* Efekt blasku dla logo w menu */
+        .navbar-brand {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            /* To dodaje delikatną białą poświatę wokół liter */
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 
+                         0 0 20px rgba(99, 102, 241, 0.2);
+            transition: text-shadow 0.3s ease;
+        }
+
+        /* Opcjonalnie: mocniejszy blask po najechaniu myszką */
+        .navbar-brand:hover {
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 
+                         0 0 25px rgba(99, 102, 241, 0.4);
+        }
     </style>
 </head>
 <body>
 
     <nav class="navbar py-3">
         <div class="container glass-panel px-4">
-            <a class="navbar-brand fw-bold text-white fs-4" href="#" onclick="location.reload()">TechNova</a>
+            <a class="navbar-brand fw-bold fs-3 text-light" href="#" onclick="location.reload()">
+    TECH<span style="color: var(--accent);">NOVA</span>
+</a>
             <div class="ms-auto d-flex align-items-center gap-3">
                 <button id="nav-cart-btn" class="btn btn-outline-light border-0 position-relative hidden" data-bs-toggle="modal" data-bs-target="#cartModal">
                     <i class="bi bi-cart3"></i>
@@ -106,23 +123,30 @@
     </nav>
 
 <div id="auth-section" class="container d-flex align-items-center justify-content-center" style="min-height: 70vh;">
-        <div id="login-box" class="glass-panel p-5 w-100 shadow-lg" style="max-width: 400px;">
-            <h4 class="text-center fw-bold mb-4">Panel Logowania</h4>
+        <div id="login-box" class="glass-panel p-4 w-100 shadow-lg" style="max-width: 400px;">
+            
+            <div class="text-center mb-3">
+                <h1 class="fw-bold" style="letter-spacing: -2px; font-size: 2.5rem; margin-bottom: 0;">
+                    TECH<span style="color: var(--accent);">NOVA</span>
+                </h1>
+                <div style="height: 3px; width: 50px; background: var(--accent); margin: 8px auto 0; border-radius: 2px; box-shadow: 0 0 8px var(--accent);"></div>
+            </div>
+
+            <h4 class="text-center fw-bold mb-3 small opacity-50 text-uppercase">Logowanie</h4>
+            
             <form id="auth-form">
-                <input type="text" id="login" class="form-control glass-input mb-3" placeholder="Login" required>
-                <input type="password" id="pass" class="form-control glass-input mb-4" placeholder="Hasło" required>
-                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">ZALOGUJ</button>
+                <input type="text" id="login" class="form-control glass-input mb-2" placeholder="Login" required>
+                <input type="password" id="pass" class="form-control glass-input mb-3" placeholder="Hasło" required>
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill">ZALOGUJ</button>
             </form>
 
-            <div class="mt-4 pt-3 border-top border-white border-opacity-10 text-center">
-                <p class="small opacity-75 mb-0">
-                    Aby wejść na sklep musisz się zalogować.<br>
-                    Nie posiadasz konta? Napisz do: <br>
+            <div class="mt-3 pt-2 border-top border-white border-opacity-10 text-center">
+                <p style="font-size: 0.75rem;" class="opacity-75 mb-0">
+                    Brak konta? Napisz: 
                     <a href="mailto:k.gnyp09@wp.pl" class="text-accent text-decoration-none fw-bold">
                         k.gnyp09@wp.pl
-                    </a> <br>
-                    a wyśle Ci dane do konta
-WYMAGANE PODANIE IMIĘ I NAZWISKO 
+                    </a>
+WYMAGANE PODANIE IMIĘ I NAZWISKO BO TO NA JEGO PODSTAWIE TWORZYMY LOGIN
                 </p>
             </div>
         </div>
