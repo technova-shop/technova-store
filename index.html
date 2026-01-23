@@ -196,7 +196,11 @@ WYMAGANE PODANIE IMIĘ I NAZWISKO BO TO NA JEGO PODSTAWIE TWORZYMY LOGIN
                                 <div class="col-4"><input type="number" id="p-stock" class="form-control glass-input form-control-sm" placeholder="Stan" required></div>
                                 <div class="col-4"><input type="number" step="0.01" id="p-delivery" class="form-control glass-input form-control-sm" placeholder="Dostawa" required></div>
                                 <textarea id="p-img" class="form-control glass-input form-control-sm" placeholder="URL zdjęć (oddziel przecinkami)" rows="3"></textarea>
-                                <button type="submit" class="btn btn-primary btn-sm w-100">ZAPISZ PRODUKT</button>
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm">ZAPISZ PRODUKT</button>
+
+<button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" onclick="resetForm()">
+    <i class="bi bi-arrow-counterclockwise"></i> WYCZYŚĆ (NOWY TOWAR)
+</button>
                             </form>
                         </div>
                     </div>
@@ -841,16 +845,47 @@ document.getElementById('promo-list-admin').innerHTML = promos.map(p => `
             save(); e.target.reset(); document.getElementById('u-id').value = '';
         };
 
-        document.getElementById('prod-form').onsubmit = (e) => {
-            e.preventDefault();
-            const id = document.getElementById('p-id').value;
-            const imgRaw = document.getElementById('p-img').value;
-            const imgArray = imgRaw.split(',').map(s => s.trim()).filter(s => s !== "");
-            const data = { id: id ? parseInt(id) : Date.now(), name: document.getElementById('p-name').value, spec: document.getElementById('p-spec').value, priceNetto: parseFloat(document.getElementById('p-price-netto').value), discount: parseInt(document.getElementById('p-discount').value) || 0, stock: parseInt(document.getElementById('p-stock').value), deliveryPrice: parseFloat(document.getElementById('p-delivery').value) || 0, img: imgArray };
-            if(id) { const idx = prods.findIndex(x => x.id == id); prods[idx] = data; } else prods.push(data); 
-            save(); e.target.reset(); document.getElementById('p-id').value = '';
-        };
+document.getElementById('prod-form').onsubmit = async (e) => {
+    e.preventDefault();
+    
+    // Pobieramy ID - jeśli jest puste, to znaczy że DODAJEMY nowy produkt
+    const idField = document.getElementById('p-id').value;
+    
+    const newProd = {
+        id: idField ? parseInt(idField) : Date.now(), // Ważne: nowe ID tylko gdy idField jest puste
+        name: document.getElementById('p-name').value,
+        spec: document.getElementById('p-spec').value,
+        category: document.getElementById('p-category').value, // Upewnij się, że masz to pole
+        priceNetto: parseFloat(document.getElementById('p-price-netto').value) || 0,
+        discount: parseFloat(document.getElementById('p-discount').value) || 0,
+        stock: parseInt(document.getElementById('p-stock').value) || 0,
+        deliveryPrice: parseFloat(document.getElementById('p-delivery').value) || 0,
+        img: document.getElementById('p-img').value.split(',').map(s => s.trim()),
+        isBestseller: document.getElementById('p-is-bestseller') ? document.getElementById('p-is-bestseller').checked : false
+    };
 
+    if (idField) {
+        // TRYB EDYCJI: Szukamy istniejącego produktu po ID i go aktualizujemy
+        const index = products.findIndex(p => p.id == idField);
+        if (index !== -1) {
+            products[index] = newProd;
+        }
+    } else {
+        // TRYB DODAWANIA: Wrzucamy nowy produkt do tablicy
+        products.push(newProd);
+    }
+
+    try {
+        await save(); // Zapis do Firebase
+        e.target.reset(); // Czyścimy pola formularza
+        document.getElementById('p-id').value = ''; // KLUCZOWE: Czyścimy ukryte ID
+        alert("Pomyślnie zapisano produkt!");
+        render(); // Odświeżamy widok
+    } catch (error) {
+        console.error("Błąd zapisu:", error);
+        alert("Wystąpił błąd podczas zapisu do bazy danych.");
+    }
+};
         document.getElementById('promo-form').onsubmit = (e) => {
             e.preventDefault();
             promos.push({ id: Date.now(), code: document.getElementById('promo-code').value.toUpperCase(), val: parseInt(document.getElementById('promo-val').value) }); 
