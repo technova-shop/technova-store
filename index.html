@@ -103,7 +103,19 @@
             text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 
                          0 0 25px rgba(99, 102, 241, 0.4);
         }
-    </style>
+footer {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(15px);
+    margin-top: auto; /* To zepchnie stopkę na dół */
+}
+
+/* Ważne: dodaj to do body, żeby stopka zawsze była na dole strony */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}    
+</style>
 </head>
 <body>
 
@@ -406,8 +418,30 @@ WYMAGANE PODANIE IMIĘ I NAZWISKO BO TO NA JEGO PODSTAWIE TWORZYMY LOGIN
                 <button onclick="acceptCookies()" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold">Akceptuję</button>
             </div>
         </div>
-    </div>
-
+</div> <footer class="footer mt-auto py-5 glass-panel text-white border-top border-secondary">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold text-primary mb-3">TechNova</h5>
+                    <p class="text-white-50 small">Dostarczamy najnowocześniejsze rozwiązania technologiczne. Najwyższa jakość, najlepsze ceny.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold text-white mb-3">Kontakt</h5>
+                    <ul class="list-unstyled text-white-50 small">
+                        <li><i class="bi bi-geo-alt-fill me-2 text-primary"></i> ul. Dolna 17, Kraków</li>
+                        <li><i class="bi bi-telephone-fill me-2 text-primary"></i> kom. 788 485 388</li>
+<li><i class="bi bi-telephone-fill me-2 text-primary"></i> tel. stacjonarny 12 365 16 88</li>
+                        <li><i class="bi bi-envelope-fill me-2 text-primary"></i> iod.technova@proton.me</li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold text-white mb-3">Godziny pracy</h5>
+                    <p class="text-white-50 small">Pn - Pt: 09:00 - 18:00<br>Sobota: 10:00 - 14:00</p>
+                </div>
+            </div>
+        </div>
+    </footer>  
+</div>
     <style>
         #cookie-banner.hidden { display: none !important; }
     </style>
