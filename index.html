@@ -120,6 +120,28 @@ body {
     padding-left: 5px;
     transition: all 0.3s ease;
 }
+#cookie-banner {
+    background: rgba(255, 255, 255, 0.05); /* Przezroczyste białe tło */
+    backdrop-filter: blur(12px);           /* Rozmycie tła (szkło) */
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Delikatna ramka */
+    border-radius: 20px;                   /* Mocno zaokrąglone rogi */
+    bottom: 20px;                          /* "Pływanie" nad krawędzią */
+    left: 20px;
+    right: 20px;
+    width: auto;
+    z-index: 9999;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Cień dla głębi */
+}
+
+#cookie-banner .btn-primary {
+    margin-left: 25px; /* Przesunięcie przycisku w prawo */
+    transition: transform 0.2s;
+}
+
+#cookie-banner .btn-primary:hover {
+    transform: scale(1.05);
+}
 </style>
 </head>
 <body>
@@ -413,16 +435,24 @@ WYMAGANE PODANIE IMIĘ I NAZWISKO BO TO NA JEGO PODSTAWIE TWORZYMY LOGIN
         <button onclick="confirmBlik()" class="btn btn-primary w-100">Potwierdziłem w aplikacji</button>
     </div>
 </div>    
-<div id="cookie-banner" class="glass-panel p-3 shadow-lg" style="position: fixed; bottom: 20px; left: 20px; right: 20px; z-index: 9999; border: 1px solid var(--accent);">
-        <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
-            <div class="small text-light">
+<div id="cookie-banner" class="fixed-bottom p-4">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+            <div class="text-white-50 small pe-md-4">
                 <i class="bi bi-cookie me-2 text-primary"></i>
-                Ta strona korzysta z ciasteczek, aby zapewnić najlepszą jakość usług i analizować ruch (Google Analytics).
+                Nasza strona korzysta z plików cookies, aby zapewnić Ci najlepszą jakość usług. 
+                <a href="polityka-prywatnosci.html" class="text-primary text-decoration-none fw-bold ms-1">
+                    Polityka Prywatności
+                </a>
             </div>
-            <div class="d-flex gap-2">
-                <button onclick="acceptCookies()" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold">Akceptuję</button>
+            <div class="mt-3 mt-md-0">
+                <button class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm" onclick="acceptCookies()">
+                    Akceptuję
+                </button>
             </div>
         </div>
+    </div>
+</div>
 </div> <footer class="mt-5 py-5 border-top border-secondary" style="background: rgba(255,255,255,0.02);">
     <div class="container">
         <div class="row text-white-50 small">
